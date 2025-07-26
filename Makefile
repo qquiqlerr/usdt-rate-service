@@ -1,4 +1,4 @@
-.PHONY: proto
+.PHONY: proto mocks
 
 proto:
 	protoc \
@@ -8,3 +8,6 @@ proto:
 		--go_opt=paths=source_relative \
 		--go-grpc_opt=paths=source_relative \
 		rates.proto
+
+mocks:
+	mockery

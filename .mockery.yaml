@@ -1,0 +1,17 @@
+with-expecter: true
+dir: "{{.InterfaceDir}}"
+outpkg: mocks
+output: "mocks/{{.PackageName}}"
+packages:
+  usdt-rate-service/internal/service:
+    interfaces:
+      DepthProvider:
+        config:
+          dir: "mocks"
+          filename: "depth_provider.go"
+          outpkg: "mocks"
+      RatesRepository:
+        config:
+          dir: "mocks" 
+          filename: "rates_repository.go"
+          outpkg: "mocks"
