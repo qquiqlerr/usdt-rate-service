@@ -1,4 +1,4 @@
-.PHONY: proto mocks
+.PHONY: proto mocks build
 
 proto:
 	protoc \
@@ -11,3 +11,18 @@ proto:
 
 mocks:
 	mockery
+
+build:
+	go build -o bin/usdt-rate-service ./cmd/main.go
+
+test:
+	go test ./... 
+
+docker-build:
+	docker build -t usdt-rate-service:latest .
+
+run:
+	docker-compose up --build
+
+lint:
+	golangci-lint run 

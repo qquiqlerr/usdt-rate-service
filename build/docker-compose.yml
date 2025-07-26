@@ -20,13 +20,14 @@ services:
       GOOSE_DBSTRING: postgres://usdt_user:usdt_password@postgres:5432/usdt_rates?sslmode=disable
     command: [ "goose", "-dir", "/migrations", "up" ]
   app:
-    build: .
+    build:
+      context: ../
+      dockerfile: Dockerfile
     ports:
-      - "50051:50051"
+      - "50052:50051"
     depends_on:
       - postgres
-    environment:
-      DATABASE_URL: postgres://usdt_user:usdt_password@postgres:5432/usdt_rates
+      - migrations
 
 volumes:
   postgres_data:

@@ -227,6 +227,7 @@ linters:
       # Such cases aren't reported by default.
       # Default: false
       check-type-assertions: true
+      disable-default-exclusions: true
 
     exhaustive:
       # Program elements to check for exhaustiveness.
