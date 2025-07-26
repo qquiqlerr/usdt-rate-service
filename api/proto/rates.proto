@@ -4,12 +4,12 @@ package rates;
 option go_package = "usdt-rate-service/internal/pb";
 
 message GetRatesRequest {
-  string market = 1; // например, "usdtrub"
+  string market = 1; 
 }
 
 message Rate {
-  string ask = 1;
-  string bid = 2;
+  double askPrice = 1;
+  double bidPrice = 2;
   int64 timestamp = 3;
 }
 

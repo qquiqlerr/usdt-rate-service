@@ -23,7 +23,7 @@ const (
 
 type GetRatesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Market        string                 `protobuf:"bytes,1,opt,name=market,proto3" json:"market,omitempty"` // например, "usdtrub"
+	Market        string                 `protobuf:"bytes,1,opt,name=market,proto3" json:"market,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -67,8 +67,8 @@ func (x *GetRatesRequest) GetMarket() string {
 
 type Rate struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Ask           string                 `protobuf:"bytes,1,opt,name=ask,proto3" json:"ask,omitempty"`
-	Bid           string                 `protobuf:"bytes,2,opt,name=bid,proto3" json:"bid,omitempty"`
+	AskPrice      float64                `protobuf:"fixed64,1,opt,name=askPrice,proto3" json:"askPrice,omitempty"`
+	BidPrice      float64                `protobuf:"fixed64,2,opt,name=bidPrice,proto3" json:"bidPrice,omitempty"`
 	Timestamp     int64                  `protobuf:"varint,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -104,18 +104,18 @@ func (*Rate) Descriptor() ([]byte, []int) {
 	return file_rates_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Rate) GetAsk() string {
+func (x *Rate) GetAskPrice() float64 {
 	if x != nil {
-		return x.Ask
+		return x.AskPrice
 	}
-	return ""
+	return 0
 }
 
-func (x *Rate) GetBid() string {
+func (x *Rate) GetBidPrice() float64 {
 	if x != nil {
-		return x.Bid
+		return x.BidPrice
 	}
-	return ""
+	return 0
 }
 
 func (x *Rate) GetTimestamp() int64 {
@@ -255,10 +255,10 @@ const file_rates_proto_rawDesc = "" +
 	"\n" +
 	"\vrates.proto\x12\x05rates\")\n" +
 	"\x0fGetRatesRequest\x12\x16\n" +
-	"\x06market\x18\x01 \x01(\tR\x06market\"H\n" +
-	"\x04Rate\x12\x10\n" +
-	"\x03ask\x18\x01 \x01(\tR\x03ask\x12\x10\n" +
-	"\x03bid\x18\x02 \x01(\tR\x03bid\x12\x1c\n" +
+	"\x06market\x18\x01 \x01(\tR\x06market\"\\\n" +
+	"\x04Rate\x12\x1a\n" +
+	"\baskPrice\x18\x01 \x01(\x01R\baskPrice\x12\x1a\n" +
+	"\bbidPrice\x18\x02 \x01(\x01R\bbidPrice\x12\x1c\n" +
 	"\ttimestamp\x18\x03 \x01(\x03R\ttimestamp\"3\n" +
 	"\x10GetRatesResponse\x12\x1f\n" +
 	"\x04rate\x18\x01 \x01(\v2\v.rates.RateR\x04rate\"\x14\n" +
