@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package rates;
+option go_package = "usdt-rate-service/internal/pb";
+
+message GetRatesRequest {
+  string market = 1; // например, "usdtrub"
+}
+
+message Rate {
+  string ask = 1;
+  string bid = 2;
+  int64 timestamp = 3;
+}
+
+message GetRatesResponse {
+  Rate rate = 1;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  string status = 1;
+}
+
+service RatesService {
+  rpc GetRates(GetRatesRequest) returns (GetRatesResponse);
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
