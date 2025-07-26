@@ -22,7 +22,7 @@ docker-build:
 	docker build -t usdt-rate-service:latest .
 
 run:
-	docker-compose up --build
+	docker-compose -f build/docker-compose.yml up --build
 
 lint:
 	golangci-lint run 

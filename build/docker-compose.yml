@@ -30,7 +30,7 @@ services:
       - migrations
     environment:
       GRPC_ADDRESS: :50051
-      DATABASE_ADDRESS: postgres://usdt_user:usdt_password@0.0.0.0:5432/usdt_rates?sslmode=disable
+      DATABASE_ADDRESS: postgres://usdt_user:usdt_password@postgres:5432/usdt_rates?sslmode=disable
       GRINEX_ADDRESS: https://grinex.io
       LOG_LEVEL: info
 

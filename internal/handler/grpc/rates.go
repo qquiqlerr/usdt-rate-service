@@ -42,3 +42,8 @@ func (h *RatesHandler) GetRates(ctx context.Context, req *pb.GetRatesRequest) (*
 		},
 	}, nil
 }
+
+func (h *RatesHandler) HealthCheck(ctx context.Context, req *pb.HealthCheckRequest) (*pb.HealthCheckResponse, error) {
+	// This is a simple health check that always returns OK.
+	return &pb.HealthCheckResponse{Status: "ok"}, nil
+}
