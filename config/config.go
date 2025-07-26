@@ -12,7 +12,7 @@ type Config struct {
 	LogLevel        string
 }
 
-func Load() *Config {
+func MustLoad() *Config {
 	cfg := &Config{}
 
 	// Set up command line flags
@@ -24,23 +24,20 @@ func Load() *Config {
 	flag.Parse()
 
 	// Load configuration values in order of priority: command line flags, environment variables, default values
-	cfg.GRPCAddress = getConfigValue(*grpcAddr, "GRPC_ADDRESS", ":50051")
+	cfg.GRPCAddress = getConfigValue(*grpcAddr, "GRPC_ADDRESS")
 	cfg.DatabaseAddress = getConfigValue(
 		*dbAddr,
-		"DATABASE_ADDRESS",
-		"postgres://usdt_user:usdt_password@0.0.0.0:5432/usdt_rates?sslmode=disable",
-	)
-	cfg.GrinexAddress = getConfigValue(*grinexAddr, "GRINEX_ADDRESS", "https://grinex.io")
-	cfg.LogLevel = getConfigValue(*logLevel, "LOG_LEVEL", "info")
+		"DATABASE_ADDRESS")
+	cfg.GrinexAddress = getConfigValue(*grinexAddr, "GRINEX_ADDRESS")
+	cfg.LogLevel = getConfigValue(*logLevel, "LOG_LEVEL")
 
 	return cfg
 }
 
 // getConfigValue retrieves the configuration value based on the following priority:
 // 1. Command line flag value
-// 2. Environment variable value
-// 3. Default value.
-func getConfigValue(flagValue, envKey, defaultValue string) string {
+// 2. Environment variable value.
+func getConfigValue(flagValue, envKey string) string {
 	// Priority 1: command line flag value
 	if flagValue != "" {
 		return flagValue
@@ -51,6 +48,6 @@ func getConfigValue(flagValue, envKey, defaultValue string) string {
 		return envValue
 	}
 
-	// Priority 3: default value
-	return defaultValue
+	// Panic if no value is provided
+	panic("Configuration value not provided for " + envKey)
 }
