@@ -27,8 +27,8 @@ func newTestClient(handler http.Handler) *Client {
 func TestGetDepth_TableDriven(t *testing.T) {
 	expected := DepthResponse{
 		Timestamp: time.Now().Unix(),
-		Asks:      []Order{{1.1, 2.2, 3.3, 4.4, "limit"}, {5.5, 6.6, 7.7, 8.8, "limit"}},
-		Bids:      []Order{{5.5, 6.6, 7.7, 8.8, "limit"}, {9.9, 10.10, 11.11, 12.12, "limit"}},
+		Asks:      []Order{{"1.1", "2.2", "3.3", "4.4", "limit"}, {"5.5", "6.6", "7.7", "8.8", "limit"}},
+		Bids:      []Order{{"5.5", "6.6", "7.7", "8.8", "limit"}, {"9.9", "10.10", "11.11", "12.12", "limit"}},
 	}
 
 	tests := []struct {
@@ -51,14 +51,14 @@ func TestGetDepth_TableDriven(t *testing.T) {
 		},
 		{
 			name: "non-200 status",
-			handler: func(w http.ResponseWriter, r *http.Request) {
+			handler: func(w http.ResponseWriter, _ *http.Request) {
 				http.Error(w, "bad request", http.StatusBadRequest)
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid json",
-			handler: func(w http.ResponseWriter, r *http.Request) {
+			handler: func(w http.ResponseWriter, _ *http.Request) {
 				w.WriteHeader(http.StatusOK)
 				io.WriteString(w, "{invalid json}")
 			},

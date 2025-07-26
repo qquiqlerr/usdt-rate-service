@@ -8,8 +8,8 @@ message GetRatesRequest {
 }
 
 message Rate {
-  double askPrice = 1;
-  double bidPrice = 2;
+  string askPrice = 1;
+  string bidPrice = 2;
   int64 timestamp = 3;
 }
 

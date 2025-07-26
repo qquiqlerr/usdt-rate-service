@@ -1,114 +1,111 @@
-package service
+package service_test
 
 import (
 	"context"
 	"errors"
+	"strconv"
 	"testing"
 	"time"
 	"usdt-rate-service/internal/models"
+	"usdt-rate-service/internal/service"
 	"usdt-rate-service/mocks"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
-func TestRatesService_GetRates(t *testing.T) {
-	logger := zap.NewNop()
+
+func setupTestService(
+	t *testing.T,
+	depth *models.Depth,
+	depthErr error,
+	saveErr error,
+	expectSave bool,
+) (*service.RatesService, *mocks.MockDepthProvider, *mocks.MockRatesRepository) {
+	t.Helper()
 	ctx := context.Background()
-	market := "usdtrub"
+	logger := zap.NewNop()
 
-	validDepth := &models.Depth{
-		Asks: []models.Order{
-			{Price: 50000.0, Amount: 1.0},
-		},
-		Bids: []models.Order{
-			{Price: 49900.0, Amount: 1.5},
-		},
-		Timestamp: time.Now().Unix(),
+	mockProvider := &mocks.MockDepthProvider{}
+	mockRepo := &mocks.MockRatesRepository{}
+
+	mockProvider.On("GetDepth", ctx, "usdtrub").Return(depth, depthErr)
+
+	if expectSave {
+		mockRepo.On("SaveRate", ctx, mock.MatchedBy(matchSavedRate(depth))).Return(saveErr)
 	}
 
-	invalidDepth := &models.Depth{
-		Asks: []models.Order{},
-		Bids: []models.Order{},
+	svc := service.NewRatesService(logger, mockProvider, mockRepo)
+	return svc, mockProvider, mockRepo
+}
+
+func matchSavedRate(depth *models.Depth) func(*models.Rate) bool {
+	return func(rate *models.Rate) bool {
+		if rate == nil {
+			return false
+		}
+		ask, _ := strconv.ParseFloat(depth.Asks[0].Price, 64)
+		bid, _ := strconv.ParseFloat(depth.Bids[0].Price, 64)
+		return ask > 0 && bid > 0
 	}
+}
 
-	tests := []struct {
-		name            string
-		mockDepth       *models.Depth
-		mockDepthErr    error
-		mockSaveErr     error
-		expectedErr     bool
-		expectedAskPrice float64
-		expectedBidPrice float64
-		shouldCallSave  bool
-	}{
-		{
-			name:            "successful rate retrieval",
-			mockDepth:       validDepth,
-			expectedAskPrice: 50000.0,
-			expectedBidPrice: 49900.0,
-			shouldCallSave:  true,
-		},
-		{
-			name:            "depth provider error",
-			mockDepth:       nil,
-			mockDepthErr:    errors.New("provider error"),
-			mockSaveErr:     nil,
-			expectedErr:     true,
-			shouldCallSave:  false,
-		},
-		{
-			name:            "invalid depth data",
-			mockDepth:       invalidDepth,
-			mockDepthErr:    nil,
-			mockSaveErr:     nil,
-			expectedErr:     true,
-			shouldCallSave:  false,
-		},
-		{
-			name:            "repository save error",
-			mockDepth:       validDepth,
-			mockDepthErr:    nil,
-			mockSaveErr:     errors.New("save error"),
-			expectedErr:     false,
-			expectedAskPrice: 50000.0,
-			expectedBidPrice: 49900.0,
-			shouldCallSave:  true,
-		},
-	}
+func assertValidRate(t *testing.T, rate *models.Rate, ask, bid string) {
+	t.Helper()
+	assert.NotNil(t, rate)
+	assert.Equal(t, ask, rate.AskPrice)
+	assert.Equal(t, bid, rate.BidPrice)
+}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mockProvider := &mocks.MockDepthProvider{}
-			mockRepo := &mocks.MockRatesRepository{}
+func TestRatesService_GetRates(t *testing.T) {
+	ctx := context.Background()
 
-			mockProvider.On("GetDepth", ctx, market).Return(tt.mockDepth, tt.mockDepthErr)
-			
-			if tt.shouldCallSave {
-				mockRepo.On("SaveRate", ctx, mock.MatchedBy(func(rate *models.Rate) bool {
-					return rate != nil && rate.AskPrice > 0 && rate.BidPrice > 0
-				})).Return(tt.mockSaveErr)
-			}
+	var (
+		validDepth = &models.Depth{
+			Asks:      []models.Order{{Price: "50000.0", Amount: "1.0"}},
+			Bids:      []models.Order{{Price: "49900.0", Amount: "1.5"}},
+			Timestamp: time.Now().Unix(),
+		}
 
-			service := NewRatesService(logger, mockProvider, mockRepo)
-			rate, err := service.GetRates(ctx, market)
+		invalidDepth = &models.Depth{
+			Asks: []models.Order{},
+			Bids: []models.Order{},
+		}
+	)
 
-			if tt.expectedErr {
-				assert.Error(t, err)
-				assert.Nil(t, rate)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, rate)
-				assert.Equal(t, tt.expectedAskPrice, rate.AskPrice)
-				assert.Equal(t, tt.expectedBidPrice, rate.BidPrice)
-			}
+	t.Run("successful rate retrieval", func(t *testing.T) {
+		svc, provider, repo := setupTestService(t, validDepth, nil, nil, true)
+		rate, err := svc.GetRates(ctx, "usdtrub")
+		require.NoError(t, err)
+		assertValidRate(t, rate, "50000.0", "49900.0")
+		provider.AssertExpectations(t)
+		repo.AssertExpectations(t)
+	})
 
-			mockProvider.AssertExpectations(t)
-			if tt.shouldCallSave {
-				mockRepo.AssertExpectations(t)
-			} else {
-				mockRepo.AssertNotCalled(t, "SaveRate")
-			}
-		})
-	}
+	t.Run("depth provider error", func(t *testing.T) {
+		svc, provider, repo := setupTestService(t, nil, errors.New("provider error"), nil, false)
+		rate, err := svc.GetRates(ctx, "usdtrub")
+		require.Error(t, err)
+		assert.Nil(t, rate)
+		provider.AssertExpectations(t)
+		repo.AssertNotCalled(t, "SaveRate")
+	})
+
+	t.Run("invalid depth data", func(t *testing.T) {
+		svc, provider, repo := setupTestService(t, invalidDepth, nil, nil, false)
+		rate, err := svc.GetRates(ctx, "usdtrub")
+		require.Error(t, err)
+		assert.Nil(t, rate)
+		provider.AssertExpectations(t)
+		repo.AssertNotCalled(t, "SaveRate")
+	})
+
+	t.Run("repository save error", func(t *testing.T) {
+		svc, provider, repo := setupTestService(t, validDepth, nil, errors.New("save error"), true)
+		_, err := svc.GetRates(ctx, "usdtrub")
+		require.Error(t, err)
+		provider.AssertExpectations(t)
+		repo.AssertExpectations(t)
+	})
 }

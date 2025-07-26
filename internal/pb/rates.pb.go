@@ -67,8 +67,8 @@ func (x *GetRatesRequest) GetMarket() string {
 
 type Rate struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	AskPrice      float64                `protobuf:"fixed64,1,opt,name=askPrice,proto3" json:"askPrice,omitempty"`
-	BidPrice      float64                `protobuf:"fixed64,2,opt,name=bidPrice,proto3" json:"bidPrice,omitempty"`
+	AskPrice      string                 `protobuf:"bytes,1,opt,name=askPrice,proto3" json:"askPrice,omitempty"`
+	BidPrice      string                 `protobuf:"bytes,2,opt,name=bidPrice,proto3" json:"bidPrice,omitempty"`
 	Timestamp     int64                  `protobuf:"varint,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -104,18 +104,18 @@ func (*Rate) Descriptor() ([]byte, []int) {
 	return file_rates_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Rate) GetAskPrice() float64 {
+func (x *Rate) GetAskPrice() string {
 	if x != nil {
 		return x.AskPrice
 	}
-	return 0
+	return ""
 }
 
-func (x *Rate) GetBidPrice() float64 {
+func (x *Rate) GetBidPrice() string {
 	if x != nil {
 		return x.BidPrice
 	}
-	return 0
+	return ""
 }
 
 func (x *Rate) GetTimestamp() int64 {
@@ -257,8 +257,8 @@ const file_rates_proto_rawDesc = "" +
 	"\x0fGetRatesRequest\x12\x16\n" +
 	"\x06market\x18\x01 \x01(\tR\x06market\"\\\n" +
 	"\x04Rate\x12\x1a\n" +
-	"\baskPrice\x18\x01 \x01(\x01R\baskPrice\x12\x1a\n" +
-	"\bbidPrice\x18\x02 \x01(\x01R\bbidPrice\x12\x1c\n" +
+	"\baskPrice\x18\x01 \x01(\tR\baskPrice\x12\x1a\n" +
+	"\bbidPrice\x18\x02 \x01(\tR\bbidPrice\x12\x1c\n" +
 	"\ttimestamp\x18\x03 \x01(\x03R\ttimestamp\"3\n" +
 	"\x10GetRatesResponse\x12\x1f\n" +
 	"\x04rate\x18\x01 \x01(\v2\v.rates.RateR\x04rate\"\x14\n" +

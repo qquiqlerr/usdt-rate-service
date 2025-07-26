@@ -18,11 +18,12 @@ type Client struct {
 }
 
 // NewClient creates a new Grinex API client.
-func NewClient(baseURL string, httpClient *http.Client) (*Client, error) {
+func NewClient(baseURL string) (*Client, error) {
 	parsedURL, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, err
 	}
+	httpClient := &http.Client{}
 	return &Client{
 		baseURL:    parsedURL,
 		httpClient: httpClient,
@@ -57,7 +58,7 @@ func (c *Client) GetDepth(ctx context.Context, market string) (*DepthResponse, e
 	}
 
 	var depthResponse DepthResponse
-	if err := json.NewDecoder(resp.Body).Decode(&depthResponse); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&depthResponse); err != nil {
 		return nil, err
 	}
 

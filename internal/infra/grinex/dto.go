@@ -7,9 +7,9 @@ type DepthResponse struct {
 }
 
 type Order struct {
-	Price  float64 `json:"price"`
-	Volume float64 `json:"volume"`
-	Amount float64 `json:"amount"`
-	Factor float64 `json:"factor"`
-	Type   string  `json:"type"`
+	Price  string `json:"price"`
+	Volume string `json:"volume"`
+	Amount string `json:"amount"`
+	Factor string `json:"factor"`
+	Type   string `json:"type"`
 }
